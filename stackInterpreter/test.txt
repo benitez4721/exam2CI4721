@@ -24,7 +24,9 @@ ADD
 LVALUE i
 ASSIGN
 GOTO condition
-end: EXIT
+end: PRINT s
+PRINT i
+EXIT
 
 
 

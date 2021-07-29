@@ -35,47 +35,51 @@ async function processLineByLine(file) {
       if (!line) {
         continue;
       }
-      let tagDetect = null;
-      const l = line.split(" ");
-      if (l[0].endsWith(":")) {
-        saveTag(l[0].slice(0, l[0].length - 1), idx);
-        tagDetect = l[0].slice(0, l[0].length - 1);
-      }
-      const inst = tagDetect ? instDic[l[1]] : instDic[l[0]];
-      if (!inst) {
-        console.log(
-          `Error: Instrucción '${tagDetect ? l[1] : l[0]}' no válida`
-        );
-        process.exit(1);
-      }
-      if (inst.arg) {
-        const arg = tagDetect ? l[2] : l[1];
-        if (!arg) {
-          console.log(
-            `Error: Para la instrucción '${
-              tagDetect ? l[1] : l[0]
-            }', se espera recibir 1 argumento`
-          );
-          process.exit(1);
-        }
-        instArr.push(() => inst.method(arg));
-      } else {
-        instArr.push(() => inst.method());
-      }
+      processEntry(line, idx);
       idx++;
     }
     execProgram(0);
-    console.log(dirs);
-    console.log(ids);
-    console.log(tags);
   } catch (error) {
     console.log(error);
     process.exit(1);
   }
 }
 
+const processEntry = (line, idx) => {
+  let tagDetect = null;
+  const l = line.split(" ");
+  if (l[0].endsWith(":")) {
+    saveTag(l[0].slice(0, l[0].length - 1), idx);
+    tagDetect = l[0].slice(0, l[0].length - 1);
+  }
+  const inst = tagDetect ? instDic[l[1]] : instDic[l[0]];
+  if (!inst) {
+    if (tagDetect) {
+      return;
+    }
+    console.log(`Error: Instrucción '${tagDetect ? l[1] : l[0]}' no válida`);
+    process.exit(1);
+  }
+  if (inst.arg) {
+    const arg = tagDetect ? l[2] : l[1];
+    if (!arg) {
+      console.log(
+        `Error: Para la instrucción '${
+          tagDetect ? l[1] : l[0]
+        }', se espera recibir 1 argumento`
+      );
+      process.exit(1);
+    }
+    instArr.push(() => inst.method(arg));
+  } else {
+    instArr.push(() => inst.method());
+  }
+};
+
 if (process.argv.length < 3) {
   console.log("Usage: node " + process.argv[1] + " FILENAME");
   process.exit(1);
 }
 processLineByLine(process.argv[2]);
+
+module.exports = { processEntry, execProgram };

@@ -432,10 +432,10 @@ const conditional = (tag, condition) => {
 };
 
 const reset = () => {
-  stack = [];
-  tags = [];
-  dirs = [];
-  ids = [];
+  stack.length = 0;
+  for (var member in tags) delete tags[member];
+  for (var member in dirs) delete dirs[member];
+  for (var member in ids) delete ids[member];
 };
 
 const exit = () => {
